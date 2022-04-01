@@ -16,6 +16,9 @@ const sleep = ms => {
   const start = Date.now();
   while (new Date() - start < ms) {}
   //return new Promise(resolve => setTimeout(() => resolve(ms), ms));
+  const end = Date.now();
+
+  return (end - start) / 1000;
 };
 
 // main route
@@ -44,7 +47,7 @@ if (cluster.isMaster) {
     fs.appendFileSync("log.txt", message);
   }, 1000);
 } else {
-  app.listen(3000, () => {
+  app.listen(4000, () => {
     console.log("Server is running on port 3000", pid);
   });
 }
