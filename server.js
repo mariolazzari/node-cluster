@@ -1,53 +1,19 @@
 const express = require("express");
-const cluster = require("cluster");
-const os = require("os");
-const fs = require("fs");
+const fabObj = require("./math-logic/fibonacci-series");
 
-// system info
-const { pid } = process;
-const cores = os.cpus().length;
-
-// express settings
 const app = express();
-app.use(express.json());
 
-// sleep function
-const sleep = ms => {
-  const start = Date.now();
-  while (new Date() - start < ms) {}
-  //return new Promise(resolve => setTimeout(() => resolve(ms), ms));
-  const end = Date.now();
-
-  return (end - start) / 1000;
-};
-
-// main route
-app.get("/", (req, res) => {
-  const { isMaster } = cluster;
-  res.status(200).json({ pid, isMaster });
-});
-
-// timer route
-app.get("/timer", async (req, res) => {
-  const delay = sleep(10000);
-  res.status(200).json({ message: "Timer end", delay, pid });
-});
-
-// fork workers
-if (cluster.isMaster) {
-  console.log("Primary s running", pid);
-
-  for (let i = 0; i < cores; i++) {
-    cluster.fork();
+// http://localhost:3000?number=10
+app.get("/", (request, response) => {
+  const num = +request.query.number;
+  if (isNaN(num) || num < 0) {
+    return response.send("<h1>Please provide a valid non-negative number</h1>");
   }
 
-  // jobs
-  const message = `Hello World from ${pid} at ${new Date().toLocaleTimeString()}\n`;
-  setInterval(() => {
-    fs.appendFileSync("log.txt", message);
-  }, 1000);
-} else {
-  app.listen(4000, () => {
-    console.log("Server is running on port 3000", pid);
-  });
-}
+  const res = fabObj.calculateFibonacciValue(num);
+  response.send(`<h1>${res}</h1>`);
+});
+
+app.listen(3000, () => {
+  console.log("Express App is running on PORT 3000");
+});
