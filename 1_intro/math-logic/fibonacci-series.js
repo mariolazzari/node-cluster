@@ -1,7 +1,8 @@
 class FibonacciSeries {
   constructor() {}
+
   calculateFibonacciValue(number) {
-    var s = 0;
+    let s = 0;
 
     if (number == 0) {
       return s;
