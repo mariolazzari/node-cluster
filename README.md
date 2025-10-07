@@ -143,3 +143,53 @@ pnpm add -g artillery
 ```sh
 artillery quick --count 10 -b 20 'http://localhost:3000?number=10'
 ```
+
+## PM2
+
+### Introducing PM2
+
+### Running app with PM2
+
+- Process manager for NodeJS apps.
+- Built-in load balancer
+- Keep alive forever
+- Reload on crash
+- Monitoring
+
+```sh
+pnpm add -g pm2
+pm2 [start|restart|stop|delete] ecosystem.config.js
+# monitor process
+pm2 monit
+# list apps
+pm2 list
+```
+
+### PM2 example
+
+```sh
+# generate ecosystem file
+pm2 ecosystem
+```
+
+```js
+module.exports = {
+  apps: [
+    {
+      name: "Express App",
+      script: "server.js",
+      instances: "MAX",
+      autorestart: true,
+      watch: true,
+      max_memory_restart: "1G",
+      exec_mode: "cluster",
+      env: {
+        NODE_ENV: "development",
+      },
+      env_production: {
+        NODE_ENV: "production",
+      },
+    },
+  ],
+};
+```
