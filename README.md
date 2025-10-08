@@ -365,3 +365,117 @@ module.exports = sendValueInFabQueue1;
 ### RabbitMQ web interrfac
 
 [RabbitMQ web inteface](http://localhost:15672)
+
+## Redis cache
+
+### Introduction to Redis
+
+- NoSql database
+- Key/value pair
+- In-memory
+- Multiple data structures
+  - Lists
+  - Sets
+  - Hashes
+  - Sorted sets
+  - Bitmaps
+- Open source (ANSI C)
+
+```sh
+pnpm add redis
+```
+
+```js
+const redis = require("redis");
+
+const client = redis.createClient({
+  host: keys.redisHost,
+  port: keys.redisPort,
+});
+
+client.get("posts", (err, reply) => {
+  if (err) res.status(500).send("<h4>Something went wrong!</h4>");
+  if (reply !== null) {
+    res.send(reply);
+    console.log("from redis!");
+  } else {
+    next();
+  }
+});
+```
+
+### Redis with ExpressJS
+
+```js
+routes.get("/posts", (request, response) => {
+  postsApi
+    .fetchPosts()
+    .then(
+      response => response.json(),
+      reason => Promise.reject(reason)
+    )
+    .then(
+      data => {
+        console.log(
+          `Data Fetched from Server with process ID - ${process.pid}`
+        );
+        client.set("posts", JSON.stringify(data));
+        response.send(data);
+      },
+      reason => response.status(500).send("Something went wrong!")
+    );
+});
+```
+
+### Redis pub/sub
+
+```js
+const redis = require("redis");
+
+const keys = require("../keys");
+const fibonacciSeriesObj = require("../math-logic/fibonacci-series");
+
+let subscriber = redis.createClient({
+  host: keys.redisHost,
+  port: keys.redisPort,
+});
+
+subscriber.subscribe("math-subscription1");
+
+subscriber.on("message", (channel, message) => {
+  let seriesValue = fibonacciSeriesObj.calculateFibonacciValue(
+    Number.parseInt(message)
+  );
+  console.log(`Fibonacci series value is ${seriesValue}`);
+});
+```
+
+### Redis pub/sub with PM2
+
+```js
+module.exports = {
+  apps: [
+    {
+      name: "Publisher Application",
+      script: "server.js",
+      instances: 2,
+      autorestart: true,
+      exec_mode: "cluster",
+      watch: true,
+      max_memory_restart: "1G",
+    },
+    {
+      name: "Subscriber-1",
+      script: "subscribers/subscriber-worker1.js",
+      instances: 1,
+    },
+    {
+      name: "Subscriber-2",
+      script: "subscribers/subscriber-worker2.js",
+      instances: 1,
+    },
+  ],
+};
+```
+
+## Nginx
