@@ -275,3 +275,93 @@ if (cluster.isMaster) {
 ```
 
 ### PM2 and RabbitMQ
+
+#### What is RabbiMQ
+
+- Open source message broker
+- 2 roles
+  - Producer
+  - Consumer
+- Distribute messages between multiple consumer
+- Load balance between workers
+
+#### RabbitMQ core
+
+- Producer: sends messages
+- Consumer: receives messages
+- Queue: stores messages
+- Message: content sent by producer to consumer
+- Channel: connects producer and consumer
+- AMQP: Advanced Message Queue Protocol
+
+#### Amqplib package
+
+```sh
+pnpm add amqplib
+```
+
+```js
+const rq = require("amqplib/callback_api");
+
+const fabObj = require("../math-logic/fibonacci-series");
+
+function sendValueInFabQueue1(num) {
+  rq.connect("amqp://localhost", (err, connection) => {
+    if (err) process.exit();
+    const queueName = "FabSeries1";
+    connection.createChannel((error, channel) => {
+      if (error) {
+        console.log(error);
+        process.exit();
+      } else {
+        let fabNum = fabObj.calculateFibonacciValue(num);
+        channel.assertQueue(queueName, { durable: false });
+        channel.sendToQueue(queueName, Buffer.from(fabNum.toString()));
+        console.log(`Queue Name is - ${queueName}`);
+      }
+    });
+  });
+}
+
+module.exports = sendValueInFabQueue1;
+```
+
+#### List queues
+
+[RabbitMQ queues](http://localhost:15672/#/queues)
+
+```sh
+rabbimqctl list_queues
+```
+
+### RabbitMQ example
+
+```js
+const rq = require("amqplib/callback_api");
+
+const fabObj = require("../math-logic/fibonacci-series");
+
+function sendValueInFabQueue1(num) {
+  rq.connect("amqp://localhost", (err, connection) => {
+    if (err) process.exit();
+    const queueName = "FabSeries1";
+    connection.createChannel((error, channel) => {
+      if (error) {
+        console.log(error);
+        process.exit();
+      } else {
+        let fabNum = fabObj.calculateFibonacciValue(num);
+        channel.assertQueue(queueName, { durable: false });
+        channel.sendToQueue(queueName, Buffer.from(fabNum.toString()));
+        console.log(`Queue Name is - ${queueName}`);
+      }
+    });
+  });
+}
+
+module.exports = sendValueInFabQueue1;
+```
+
+### RabbitMQ web interrfac
+
+[RabbitMQ web inteface](http://localhost:15672)

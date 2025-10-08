@@ -5,3 +5,4 @@ process.on("message", number => {
   console.log(`Fibonacci-series - 1 PID is ${process.pid}`);
   process.send(fabNum);
 });
+
