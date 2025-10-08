@@ -479,3 +479,52 @@ module.exports = {
 ```
 
 ## Nginx
+
+### Introduction to Nginx
+
+- Powerful web server
+- Use cases:
+  - reverse proxy
+  - load balancer
+  - caching
+- One master process and many child workers:
+  - main process reads configuration and mantains workers
+  - max number of workers can be fixed or variable depending on cpu cores
+
+```sh
+nginx -s start | restart | stop | test
+```
+
+### Nginx as reverse proxy
+
+```conf
+server {
+  listen 80;
+  listen [::]:80;
+
+  server_name example.com;
+
+  location / {
+      proxy_pass http://localhost:3000/jph/;
+  }
+}
+```
+
+### Nginx as load balancer
+
+```conf
+upstream expressapi{
+  server localhost:3000;
+  server localhost:3001;
+}
+server {
+  listen 80;
+  listen [::]:80;
+
+  server_name example.com;
+
+  location / {
+      proxy_pass http://expressapi/jph/;
+  }
+}
+```
